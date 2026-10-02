@@ -1,0 +1,32 @@
+# ---- 构建 / 运行时生成物 ----
+build/
+dist/
+castlink/
+receiver-win/
+.tmp/
+__pycache__/
+*.pyc
+*.pyo
+*.log
+run_*.log
+inst_*.log
+trace.log
+smoke.log
+apk_*.log
+*_build.log
+
+# ---- 私有 / 代理数据，绝不入库 ----
+.workbuddy/
+
+# ---- 第三方工具链（体积巨大；用 tools/install-sdk.bat 等脚本自行准备，不入库）----
+tools/jdk/
+tools/android-sdk/
+tools/pyenv/
+tools/ffmpegx/
+tools/ffmpeg/
+tools/cmdline-tools.zip
+tools/jdk17.zip
+tools/ffmpeg.zip
+tools/ffmpeg.exe
+tools/ff.gz
+tools/_tone.wav
