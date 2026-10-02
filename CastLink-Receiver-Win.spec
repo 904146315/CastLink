@@ -1,0 +1,52 @@
+# -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_all
+
+datas = []
+binaries = [('D:/workspace/claw/投屏软件/tools/ffmpeg.exe', '.')]
+hiddenimports = ['castlink', 'castlink.protocol', 'castlink.control', 'castlink.discovery', 'castlink.identity', 'castlink.config', 'castlink.ffmpeg', 'castlink.padev', 'castlink.winvol', 'pyaudiowpatch']
+tmp_ret = collect_all('pyaudiowpatch')
+datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
+
+
+a = Analysis(
+    ['D:/workspace/claw/投屏软件/receiver-win/castlink_receiver_win.py'],
+    pathex=['D:/workspace/claw/投屏软件'],
+    binaries=binaries,
+    datas=datas,
+    hiddenimports=hiddenimports,
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=[],
+    noarchive=False,
+    optimize=0,
+)
+pyz = PYZ(a.pure)
+
+exe = EXE(
+    pyz,
+    a.scripts,
+    [],
+    exclude_binaries=True,
+    name='CastLink-Receiver-Win',
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    console=True,
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
+    contents_directory='.',
+)
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='CastLink-Receiver-Win',
+)
