@@ -91,11 +91,14 @@ def main() -> int:
     # PyInstaller 不会去“分析”里面的 .ico/.dll/.pyd，安装时再解压即可。
     zip_path = tmp / "payload.zip"
     import zipfile
+    # 条目一律加 "app/" 前缀。安装器 installer_app.py 会在解压目录下找 app/ 子目录，
+    # 若把 onedir 内容平铺在 zip 根，安装时就会报"app 目录不存在"
+    # （历史 bug：发送端/接收端安装包都因此打不开，见 tools/installer_payload_test.py）。
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for root, _dirs, files in os.walk(src):
             for f in files:
                 fp = Path(root) / f
-                zf.write(fp, fp.relative_to(src))
+                zf.write(fp, Path("app") / fp.relative_to(src))
 
     win_zip = str(zip_path)
     win_cfg = str(cfg)
@@ -113,7 +116,12 @@ def main() -> int:
         "--noconfirm",
         "--clean",
         "--paths", str(Path(args.app).resolve().parent),
-        "--add-data", f"{win_zip};payload.zip",
+        # 注意 add-data 的第 2 段是**目标目录**，不是最终文件名：
+        #   "src;."          -> 落在包根，运行时 < _MEIPASS>/<basename>
+        #   "src;payload.zip"-> payload.zip 被当成目录，实际变成 payload.zip/payload.zip（嵌套！）
+        # 早期误写成后者，导致 installer_app 的 os.path.isfile(< _MEIPASS>/payload.zip) 为假、
+        # 根本不去解压负载，安装即报"app 目录不存在"。见 tools/installer_payload_test.py。
+        "--add-data", f"{win_zip};.",
         "--add-data", f"{win_cfg};.",
         # 中间产物与输出都放进临时目录，别污染项目根，
         # 也避开"项目里残留旧中间目录 -> --clean 想删 -> 被守卫拦下"的连锁失败
